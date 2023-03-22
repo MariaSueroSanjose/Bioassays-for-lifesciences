@@ -1,0 +1,38 @@
+
+library(shiny)
+library(ggplot2)
+library(bioassays)
+
+library(shiny)
+library(ggplot2)
+
+ui <- fluidPage(
+  
+  # UI for uploading the CSV file
+  fileInput("file", "Choose CSV file", accept = ".csv"),
+  actionButton("upload", "Upload"),
+  
+  # UI for generating the heatmap
+  actionButton("generate", "Generate Heatmap"),
+  plotOutput("heatmap")
+)
+
+server <- function(input, output) {
+  
+  # Reactive function to read the uploaded CSV file
+  data <- reactive({
+    req(input$file)
+    read.csv(input$file$datapath, header = TRUE)
+  })
+  
+  # Event observer to generate the heatmap
+  observeEvent(input$generate, {
+    output$heatmap <- renderPlot({
+      plate.heatmap<-matrix96(plate_df,"value",rm="TRUE")
+      heatplate(plate.heatmap,"MTS Plate", size=5)
+    })
+  })
+}
+
+shinyApp(ui, server)
+
